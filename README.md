@@ -1,16 +1,15 @@
 # @nice-labs/git-rev
 
-![node version](https://img.shields.io/node/v/@nice-labs/git-rev)
-[![npm module](https://img.shields.io/npm/v/@nice-labs/git-rev)](https://www.npmjs.com/package/@nice-labs/git-rev)
+![node version](https://img.shields.io/node/v/@rkesters/git-agent)
+[![npm module](https://img.shields.io/npm/v/@rkesters/git-agent)](https://www.npmjs.com/package/@rkesters/git-agent)
 
 Synchronously get the current git commit hash, tag, count, branch or commit message.
 
-Forked from [git-rev-sync-js](https://github.com/kurttheviking/git-rev-sync-js).
 
 ## usage
 
 ```typescript
-import git from "@nice-labs/git-rev";
+import git from "@rkesters/git-agent";
 
 // short commit-hash
 console.log(git.commitHash(true)); // 75bf4ee
@@ -25,5 +24,5 @@ console.log(git.branchName()); // master
 ## installation
 
 ```bash
-npm install --save-dev @nice-labs/git-rev
+npm install --save-dev @rkesters/git-agent
 ```
