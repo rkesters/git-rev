@@ -1,4 +1,4 @@
-# @nice-labs/git-rev
+# @rkesters/git-rev
 
 ![node version](https://img.shields.io/node/v/@rkesters/git-agent)
 [![npm module](https://img.shields.io/npm/v/@rkesters/git-agent)](https://www.npmjs.com/package/@rkesters/git-agent)
