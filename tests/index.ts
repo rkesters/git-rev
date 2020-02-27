@@ -1,5 +1,4 @@
 import git from "../src";
-import {Git} from "../src/git";
 
 // tslint:disable:no-console
 console.log("git.branchName() =>", git.branchName());

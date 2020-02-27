@@ -1,11 +1,12 @@
 {
-  "name": "@nice-labs/git-rev",
-  "version": "3.2.0",
+  "name": "@rkesters/git-agent",
+  "version": "0.1.0",
   "description": "Synchronously get the current git commit hash, tag, or branch",
-  "repository": "https://github.com/NiceLabs/git-rev",
+  "repository": "https://github.com/rkesters/git-rev",
   "license": "MIT",
-  "author": "septs",
+  "author": "rkesters",
   "main": "./dist/index.js",
+  "access": "public",
   "scripts": {
     "build": "rimraf dist && tsc",
     "build:watch": "rimraf dist && tsc --watch",
