@@ -1,5 +1,5 @@
-import { Git } from "./git"
+import { Git } from "./git";
 
-export { Git }
+export { Git };
 
 export default new Git();

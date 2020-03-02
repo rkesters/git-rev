@@ -1,5 +1,9 @@
-import {execFileSync, ExecFileSyncOptionsWithStringEncoding} from "child_process";
-import {basename} from "path";
+import {
+    execFileSync,
+    ExecFileSyncOptionsWithStringEncoding
+} from "child_process";
+import * as path from "path";
+import * as fs from "fs-extra";
 
 export class Git {
     private cwd: string | undefined;
@@ -17,12 +21,12 @@ export class Git {
             encoding: "utf-8",
             cwd: this.cwd,
             stdio: ["inherit", "pipe", "pipe"],
-            shell: false,
-        }
+            shell: false
+        };
         const output = execFileSync(
             "git",
-            args.filter((item) => typeof item === "string"),
-            options,
+            args.filter(item => typeof item === "string"),
+            options
         );
         return output.trim();
     }
@@ -64,24 +68,27 @@ export class Git {
     }
 
     public tag(markDirty = false, firstParent = false, match?: string) {
-        const matchArgs = match ? ['--match', match] : [];
         return this.describe(
-            "--always", "--tag", "--abbrev=0",
+            "--always",
+            "--tag",
+            "--abbrev=0",
             markDirty && "--dirty",
-            firstParent && "--first-parent", ...matchArgs
+            firstParent && "--first-parent",
+            match && "--match",
+            match && match
         );
     }
 
-    public log(fields?: Record<string, string>): Record<string, string>[]
-    public log(fields?: string[]): string[][]
+    public log(fields?: Record<string, string>): Record<string, string>[];
+    public log(fields?: string[]): string[][];
     public log(fields?: any) {
         if (fields === undefined) {
-            fields = {hash: "%H", date: "%s", subject: "%cI", name: "%an"};
+            fields = { hash: "%H", date: "%s", subject: "%cI", name: "%an" };
         }
         const result = this.git(
             "log",
             "--abbrev-commit",
-            `--pretty=format:${JSON.stringify(fields)}`,
+            `--pretty=format:${JSON.stringify(fields)}`
         );
         return JSON.parse(`[${result.replace(/\n/g, ",")}]`);
     }
@@ -114,7 +121,10 @@ export class Git {
         return false;
     }
 
-    public isUpdateToDate(branchName = this.branchName(), remoteName = "origin") {
+    public isUpdateToDate(
+        branchName = this.branchName(),
+        remoteName = "origin"
+    ) {
         this.git("fetch", remoteName, branchName);
         const localHash = this.commitHash();
         const remoteHash = this.git("rev-parse", `${remoteName}/${branchName}`);
@@ -123,22 +133,22 @@ export class Git {
 
     public repositoryName(remoteName = "origin") {
         const url = this.remoteURL(remoteName);
-        return basename(url, ".git");
+        return path.basename(url, ".git");
     }
 
     public commit(message: string) {
-        this.git('commit', '-am', message)
+        this.git("commit", "-am", `${message}`);
     }
 
     public createBranch(name: string) {
-        this.git('branch', name);
+        this.git("branch", name);
 
         return `created branch ${name}`;
     }
 
     public checkoutBranch(name: string) {
         try {
-            this.git('checkout', name);
+            this.git("checkout", name);
 
             return `checked out ${this.branchName()}`;
         } catch (e) {
@@ -146,7 +156,7 @@ export class Git {
         }
     }
 
-    public createRemoteBranch(name: string, origin: string = 'origin') {
+    public createRemoteBranch(name: string, origin: string = "origin") {
         const currentBranch = this.branchName();
 
         this.createBranch(name);
@@ -155,32 +165,57 @@ export class Git {
         this.checkoutBranch(currentBranch);
     }
 
-    public deleteRemoteBranch(name: string, origin: string = 'origin') {
-        return this.git('push', origin, '--delete',  name)
+    public deleteRemoteBranch(name: string, origin: string = "origin") {
+        return this.git("push", origin, "--delete", name);
     }
 
     public deleteBranch(name: string) {
-        return this.git( 'branch' , '-d'  ,   name)
+        return this.git("branch", "-d", name);
     }
 
     public createTag(tag: string) {
-        this.git('tag', tag);
+        this.git("tag", tag);
     }
 
-    public push(origin: string = 'origin', noVerify: boolean = true,
-                track: boolean = false, force: boolean = false,
-                includeTags: boolean = true) {
+    public push(
+        origin: string = "origin",
+        noVerify: boolean = true,
+        track: boolean = false,
+        force: boolean = false,
+        includeTags: boolean = true
+    ) {
         const currentBranch = this.branchName();
-        const args = ['push'];
-        if (force) args.push('-f');
-        if (includeTags) args.push('--tags');
-        if (noVerify) args.push('--no-verify');
+        const args = ["push"];
+        if (force) args.push("-f");
+        if (includeTags) args.push("--tags");
+        if (noVerify) args.push("--no-verify");
         if (track) {
-            args.push('-u');
+            args.push("-u");
             args.push(origin);
             args.push(currentBranch);
         }
 
-            this.git(...args)
+        this.git(...args);
+    }
+
+    public init() {
+        this.git("init");
+    }
+
+    public addAll() {
+        this.git("add", "--all");
+    }
+
+    public static createRepo(pathOpt: string) {
+        const dir = path.relative(process.cwd(), pathOpt);
+
+        if (fs.existsSync(dir)) {
+            throw new Error("Can not create repo, path exists");
+        }
+        fs.mkdirSync(dir, { recursive: true });
+        const g = new Git(dir);
+        g.init();
+
+        return g;
     }
 }
